@@ -6,25 +6,27 @@ def random_ai(board):
     return choice(get_moves(board))
 
 
-def get_jumps(board, closed, open_):
-    print all_moves
-    new_all_moves = deepcopy(all_moves)
-    changed = False
+def get_jumps(board, open_, closed):
+    new_open_ = deepcopy(open_)
     for move in open_:
+        print move
+        current_move_changed = False
         last = move[-1]
         for shift_y in (-2, 2):
             for shift_x in (-2, 2):
                 new = deepcopy(move)
                 new.append((last[0] + shift_x, last[1] + shift_y))
                 if is_legal_move(board, new):
-                    changed = True
-                    new_all_moves.append(new)
+                    current_move_changed = True
+                    new_open_.append(new)
+        if not current_move_changed:
+            new_open_.remove(move)
+            closed.append(move)
 
-    # return new_all_moves               
-    if changed:
-        return get_jumps(board, new_all_moves)
+    if len(new_open_) == 0:
+        return closed
     else:
-        return new_all_moves
+        return get_jumps(board, new_open_, closed)
 
 
 
@@ -100,6 +102,6 @@ if __name__ == "__main__":
 
     # print get_moves(board)
 
-    print get_jumps(board, [[(1, 2)]])
+    print get_jumps(board, [[(1, 2)]], [])
 
     
