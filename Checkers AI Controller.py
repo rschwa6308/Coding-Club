@@ -1,30 +1,29 @@
+from copy import deepcopy
+
 from itertools import combinations
 
 
-board = [
-    [0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0],
-    [0, 1, 0, 0, 0, 1, 0, 1],
-    [0, 0, 2, 0, 2, 0, 0, 0],
-    [0, 10, 0, 0, 0, 0, 0, 0],
-    [2, 0, 2, 0, 2, 0, 2, 0],
-    [0, 2, 0, 2, 0, 0, 0, 2],
-    [2, 0, 2, 0, 2, 0, 2, 0]
-]
+
 
 
 
 def is_legal_advance(board, (start, end)):
     if board[start[1]][start[0]] == 1:
-        return abs(end[0] - start[0]) == 1 and end[1] - start[1] == 1
+        return abs(end[0] - start[0]) == 1 and (end[1] - start[1] == 1)
     else:
         return abs(end[0] - start[0]) == 1 and abs(end[1] - start[1]) == 1
 
 
 def is_legal_jump(board, (start, end)):
+    print start, end
     if board[(start[1] + end[1])/2][(start[0] + end[0])/2] in (2, 20):
         if board[start[1]][start[0]] == 1:
-            return abs(end[0] - start[0]) == 2 and end[1] - start[1] == 2
+            if abs(end[0] - start[0]) == 2 and (end[1] - start[1] == 2):
+                print "True!", start, end
+                return True
+            else:
+                print "False!", start, end
+                return False
         else:
             return abs(end[0] - start[0]) == 2 and abs(end[1] - start[1]) == 2
     else:
@@ -50,8 +49,10 @@ def is_legal_move(board, move):
         return is_legal_advance(board, move)
 
     # Check jump legality
+    board_copy = deepcopy(board)
     for start, end in [(move[i], move[i+1]) for i in range(len(move) - 1)]:
-        if not is_legal_jump(board, [start, end]):
+        board_copy = apply_move(board_copy, [start, end])
+        if not is_legal_jump(board_copy, [start, end]):
             return False
 
     return True
@@ -114,10 +115,10 @@ def run_game(ai_a, ai_b):
         [0, 1, 0, 1, 0, 1, 0, 1],
         [1, 0, 1, 0, 1, 0, 1, 0],
         [0, 1, 0, 1, 0, 1, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 2, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [2, 0, 2, 0, 2, 0, 2, 0],
-        [0, 2, 0, 2, 0, 2, 0, 2],
+        [0, 2, 0, 2, 0, 0, 0, 2],
         [2, 0, 2, 0, 2, 0, 2, 0]
     ]
 
@@ -146,29 +147,42 @@ def run_game(ai_a, ai_b):
 
 if __name__ == "__main__":
 
-##    unit_tests = [
-##        ([(1, 2), (3, 4), (5, 6)], True),
-##        ([(1, 12), (2, 3)], False),
-##        ([(1, 2), (2, -3)], False),
-##        ([(1, 2), (2, 3), (3, 4)], False),
-##        ([(1, 4), (3, 2)], True),
-##        ([(1, 4), (3, 2), (5, 4)], True),
-##    ]
-##
-##    for test in unit_tests:
-##        result = is_legal_move(board, test[0])
-##        print str(test[0]) + " --> " + str(result) + "\t" + ("PASS" if result == test[1] else "FAIL")
+    board = [
+        [0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0],
+        [0, 1, 0, 0, 0, 1, 0, 1],
+        [0, 0, 2, 0, 2, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [2, 0, 2, 0, 2, 0, 2, 0],
+        [0, 2, 0, 2, 0, 0, 0, 2],
+        [2, 0, 2, 0, 2, 0, 2, 0]
+    ]
+
+    unit_tests = [
+        ([(1, 2), (3, 4), (5, 6)], True),
+        ([(1, 12), (2, 3)], False),
+        ([(1, 2), (2, -3)], False),
+        ([(1, 2), (2, 3), (3, 4)], False),
+        ([(1, 4), (3, 2)], False),
+        ([(1, 4), (3, 2), (5, 4)], False),
+        ([(1, 2), (3, 4), (5, 6)], True),
+        ([(1, 2), (3, 4), (5, 6), (3, 4)], False)
+    ]
+
+    for test in unit_tests:
+        result = is_legal_move(board, test[0])
+        print str(test[0]) + " --> " + str(result) + "\t" + ("PASS" if result == test[1] else "FAIL")
 
     from LiamCheckers import makeMove
     from TestAIs import *
     
-    ais = [
-        Ai("Liam 1", makeMove),
-        Ai("Liam 2", makeMove)
-    ]
-
-    combs = combinations(ais, 2)
-
-    for pair in combs:
-        victor = run_game(pair[0], pair[1])
-        print victor.name + " wins"
+##    ais = [
+##        Ai("Liam 1", makeMove),
+##        Ai("Liam 2", makeMove)
+##    ]
+##
+##    combs = combinations(ais, 2)
+##
+##    for pair in combs:
+##        victor = run_game(pair[0], pair[1])
+##        print victor.name + " wins"
