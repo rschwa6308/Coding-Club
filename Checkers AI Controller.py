@@ -1,4 +1,3 @@
-from copy import deepcopy
 from itertools import combinations
 
 from CheckersFunctions import *
@@ -14,6 +13,11 @@ class Ai:
     def __init__(self, name, func):
         self.name = name
         self.func = func
+
+        self.wins = 0
+        self.losses = 0
+        self.ties = 0
+
     def get_move(self, board):
         return self.func(board)
 
@@ -54,13 +58,13 @@ def run_game(ai_a, ai_b):
         [2, 0, 2, 0, 2, 0, 2, 0]
     ]
 
-    display_board(board)
-    for i in range(100):
+    # display_board(board)
+    for i in range(MAX_TURNS):
         for ai in (ai_a, ai_b):
-            print "\n\n"
+            # print "\n\n"
 
             if not has_moves(board):
-                print "Stalemate!"
+                # display_board(board)
                 return None
             
             move = ai.get_move(board)
@@ -69,41 +73,72 @@ def run_game(ai_a, ai_b):
                 apply_move(board, move)
             else:
                 print "Illegal move made by " + ai.name
+                
+            # if ai is ai_a:
+            #     display_board(board)
+            # else:
+            #     display_board(flipped_board(board))
+
+            board = flipped_board(board)
 
             if is_game_won(board):
                 return ai
-                
-            if ai is ai_a:
-                display_board(board)
-            else:
-                display_board(flipped_board(board))
-            board = flipped_board(board)
+
+    print "MAX TURNS EXCEEDED"
+    # display_board(board)
 
 
 
 
 
 
-
-
+def display_statistics(ais):
+    print "=========================================================="
+    print "||      Name      |   W   |   L   |   T   |    Score*   ||"
+    print "||------------------------------------------------------||"
+    for ai in sorted(ais, key=lambda ai: ai.score)[::-1]:
+        print "||   " + "   |   ".join(str(x) for x in [(ai.name + " "*50)[:10], ai.wins, ai.losses, ai.ties, (" ", "  ")[ai.score >= 0.0] + str(ai.score) + (" ", "")[abs(ai.score) >= 10.0]]) + "    ||"
+    print "=========================================================="
+    print "\n* Score = W - L + T / 2"
 
 if __name__ == "__main__":
 
 
-    from LiamCheckers import makeMove
+    from LiamCheckers4 import makeMove
     from TestAIs import *
+    from RussellAI import *
+
+    MAX_TURNS = 1000
     
-    ais = [
-        Ai("Russell 1", random_ai),
-        Ai("Russell 2", random_ai)
-    ]
+    # ais = [
+    #     Ai("Simple 1", simple_ai),
+    #     Ai("Simple 2", simple_ai),
+    #     Ai("Random 1", random_ai),
+    #     Ai("Random 2", random_ai),
+    #     Ai("Liam 1", makeMove),
+    #     Ai("Liam 2", makeMove)
+    # ]
+
+    # ais = [Ai("Russell " + str(x), simple_ai) for x in range(1, 6)]
+
+    ais = [Ai("Simple " + str(x), simple_ai) for x in range(1, 6)] + [Ai("Random " + str(x), random_ai) for x in range(1, 4)]
 
     combs = combinations(ais, 2)
 
     for pair in combs:
+        print pair[0].name + " vs " + pair[1].name
         victor = run_game(pair[0], pair[1])
-        if victor is not None:
-            print victor.name + " wins!"
+        if victor is None:
+            print "Stalemate!"
+            for ai in pair: ai.ties += 1
         else:
-            print "Tie!"
+            print victor.name + " wins!"
+            victor.wins += 1
+            pair[pair[0] is victor].losses += 1
+        print "\n"
+
+    for ai in ais:
+        ai.score = ai.wins - ai.losses + float(ai.ties) / 2.0
+
+    display_statistics(ais)
 

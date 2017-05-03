@@ -22,6 +22,11 @@ def is_legal_jump(board, (start, end)):
 
 
 def is_legal_move(board, move):
+
+    # Check for a null input
+    if move is None:
+        return False
+
     # If any square is off the board, return false
     if any(min(x, y) < 0 or max(x, y) > 7 for (x, y) in move):
         return False
@@ -104,11 +109,10 @@ def get_moves(board):
     for y in range(len(board)):
         for x in range(len(board[y])):
             if board[y][x] in (1, 10):
-                # print x, y
-                if is_legal_move(board, [(x, y), (x - 1, y + 1)]):
-                    moves.append([(x, y), (x - 1, y + 1)])
-                if is_legal_move(board, [(x, y), (x + 1, y + 1)]):
-                    moves.append([(x, y), (x + 1, y + 1)])
+                for y_shift in (-1, 1):
+                    for x_shift in (-1, 1):
+                        if is_legal_move(board, [(x, y), (x + x_shift, y + y_shift)]):
+                            moves.append([(x, y), (x + x_shift, y + y_shift)])
                 moves.extend(get_jumps(board, [[(x, y)]], []))
     return moves
 
