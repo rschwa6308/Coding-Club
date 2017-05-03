@@ -101,12 +101,20 @@ def display_statistics(ais):
     print "=========================================================="
     print "\n* Score = W - L + T / 2"
 
+
+
+
+
+
+
+
 if __name__ == "__main__":
 
 
     from LiamCheckers4 import makeMove
     from TestAIs import *
     from RussellAI import *
+    from RussellAltAI import *
 
     MAX_TURNS = 1000
     
@@ -121,7 +129,7 @@ if __name__ == "__main__":
 
     # ais = [Ai("Russell " + str(x), simple_ai) for x in range(1, 6)]
 
-    ais = [Ai("Simple " + str(x), simple_ai) for x in range(1, 6)] + [Ai("Random " + str(x), random_ai) for x in range(1, 4)]
+    ais = [Ai("Simple " + str(x), simple_ai) for x in range(1, 4)] + [Ai("AltSimple " + str(x), alt_simple_ai) for x in range(1, 4)]
 
     combs = combinations(ais, 2)
 

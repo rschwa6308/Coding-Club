@@ -1,11 +1,10 @@
+from CheckersFunctions import *
 from random import choice
 
-from CheckersFunctions import *
 
 
-
-def simple_ai(board):
-    moves = [Move(coords) for coords in get_moves(board)]
+def alt_simple_ai(board):
+    moves = [AltMove(coords) for coords in get_moves(board)]
 
     for m in moves:
         m.set_features(board)
@@ -21,7 +20,7 @@ def simple_ai(board):
 
 
 
-value_set = {
+alt_value_set = {
     "rank up": 1,
     "jump": 3,
     "king jump": 5,
@@ -29,21 +28,21 @@ value_set = {
     "open back": -2
 }
 
-advanced_value_set = {
+alt_advanced_value_set = {
     "threatened": -1,
-    "seeking": 1,
+    "seeking": 3,
     "forethought": 1            # Dynamic
 }
 
 
-class Move:
+class AltMove:
     def __init__(self, coords):
         self.coords = coords
         
         self.value = 0
         
-        self.features = dict([(key, False) for key in value_set.keys()])
-        self.advanced_features = dict([(key, False) for key in advanced_value_set.keys()])
+        self.features = dict([(key, False) for key in alt_value_set.keys()])
+        self.advanced_features = dict([(key, False) for key in alt_advanced_value_set.keys()])
 
 
     def set_features(self, board):
@@ -84,9 +83,23 @@ class Move:
                 except:
                     pass
 
+        if board[start[1]][start[0]] == 10:
+            com = [0, 0]
+            count = 0
+            for y in range(len(board)):
+                for x in range(len(board[y])):
+                    if board[y][x] in (2, 20):
+                        com[0] += x
+                        com[1] += y
+                        count += 1
+            com[0] /= count
+            com[1] /= count
+            self.advanced_features["seeking"] = (end[1] - com[1])**2 + (end[0] - com[0])**2 < (start[1] - com[1])**2 + (start[0] - com[0])**2
+            # print "SEEKING"
+
     def set_value(self):
         for key in self.features.keys():
-            self.value += value_set[key] * self.features[key]
+            self.value += alt_value_set[key] * self.features[key]
         for key in self.advanced_features.keys():
             if self.advanced_features[key]:
-                self.value += advanced_value_set[key]
+                self.value += alt_advanced_value_set[key]
